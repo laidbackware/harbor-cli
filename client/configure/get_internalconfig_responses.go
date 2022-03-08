@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/goharbor/harbor/src/lib/config"
+	"github.com/laidbackware/harbor-cli/models"
 )
 
 // GetInternalconfigReader is a Reader for the GetInternalconfig structure.
@@ -62,13 +62,13 @@ func NewGetInternalconfigOK() *GetInternalconfigOK {
 Get system configurations successfully. The response body is a map.
 */
 type GetInternalconfigOK struct {
-	Payload config.InternalCfg
+	Payload models.InternalConfigurationsResponse
 }
 
 func (o *GetInternalconfigOK) Error() string {
 	return fmt.Sprintf("[GET /internalconfig][%d] getInternalconfigOK  %+v", 200, o.Payload)
 }
-func (o *GetInternalconfigOK) GetPayload() config.InternalCfg {
+func (o *GetInternalconfigOK) GetPayload() models.InternalConfigurationsResponse {
 	return o.Payload
 }
 

@@ -117,9 +117,15 @@ type ListArtifactsParams struct {
 	*/
 	Sort *string
 
+	/* WithAccessory.
+
+	   Specify whether the accessories are included of the returning artifacts. Only works when setting 'with_accessory=true'
+	*/
+	WithAccessory *bool
+
 	/* WithImmutableStatus.
 
-	   Specify whether the immutable status is included inside the tags of the returning artifacts. Only works when setting 'with_tag=true'
+	   Specify whether the immutable status is included inside the tags of the returning artifacts. Only works when setting 'with_immutable_status=true'
 	*/
 	WithImmutableStatus *bool
 
@@ -173,6 +179,8 @@ func (o *ListArtifactsParams) SetDefaults() {
 
 		pageSizeDefault = int64(10)
 
+		withAccessoryDefault = bool(false)
+
 		withImmutableStatusDefault = bool(false)
 
 		withLabelDefault = bool(false)
@@ -188,6 +196,7 @@ func (o *ListArtifactsParams) SetDefaults() {
 		XAcceptVulnerabilities: &xAcceptVulnerabilitiesDefault,
 		Page:                   &pageDefault,
 		PageSize:               &pageSizeDefault,
+		WithAccessory:          &withAccessoryDefault,
 		WithImmutableStatus:    &withImmutableStatusDefault,
 		WithLabel:              &withLabelDefault,
 		WithScanOverview:       &withScanOverviewDefault,
@@ -320,6 +329,17 @@ func (o *ListArtifactsParams) WithSort(sort *string) *ListArtifactsParams {
 // SetSort adds the sort to the list artifacts params
 func (o *ListArtifactsParams) SetSort(sort *string) {
 	o.Sort = sort
+}
+
+// WithWithAccessory adds the withAccessory to the list artifacts params
+func (o *ListArtifactsParams) WithWithAccessory(withAccessory *bool) *ListArtifactsParams {
+	o.SetWithAccessory(withAccessory)
+	return o
+}
+
+// SetWithAccessory adds the withAccessory to the list artifacts params
+func (o *ListArtifactsParams) SetWithAccessory(withAccessory *bool) {
+	o.WithAccessory = withAccessory
 }
 
 // WithWithImmutableStatus adds the withImmutableStatus to the list artifacts params
@@ -474,6 +494,23 @@ func (o *ListArtifactsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 		if qSort != "" {
 
 			if err := r.SetQueryParam("sort", qSort); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.WithAccessory != nil {
+
+		// query param with_accessory
+		var qrWithAccessory bool
+
+		if o.WithAccessory != nil {
+			qrWithAccessory = *o.WithAccessory
+		}
+		qWithAccessory := swag.FormatBool(qrWithAccessory)
+		if qWithAccessory != "" {
+
+			if err := r.SetQueryParam("with_accessory", qWithAccessory); err != nil {
 				return err
 			}
 		}

@@ -8,6 +8,7 @@ package cli
 import (
 	"fmt"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/laidbackware/harbor-cli/models"
 
@@ -24,6 +25,10 @@ func registerModelGeneralInfoFlags(depth int, cmdPrefix string, cmd *cobra.Comma
 	}
 
 	if err := registerGeneralInfoAuthproxySettings(depth, cmdPrefix, cmd); err != nil {
+		return err
+	}
+
+	if err := registerGeneralInfoCurrentTime(depth, cmdPrefix, cmd); err != nil {
 		return err
 	}
 
@@ -110,6 +115,25 @@ func registerGeneralInfoAuthproxySettings(depth int, cmdPrefix string, cmd *cobr
 	if err := registerModelAuthproxySettingFlags(depth+1, authproxySettingsFlagName, cmd); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func registerGeneralInfoCurrentTime(depth int, cmdPrefix string, cmd *cobra.Command) error {
+	if depth > maxDepth {
+		return nil
+	}
+
+	currentTimeDescription := `The current time of the server.`
+
+	var currentTimeFlagName string
+	if cmdPrefix == "" {
+		currentTimeFlagName = "current_time"
+	} else {
+		currentTimeFlagName = fmt.Sprintf("%v.current_time", cmdPrefix)
+	}
+
+	_ = cmd.PersistentFlags().String(currentTimeFlagName, "", currentTimeDescription)
 
 	return nil
 }
@@ -361,6 +385,12 @@ func retrieveModelGeneralInfoFlags(depth int, m *models.GeneralInfo, cmdPrefix s
 	}
 	retAdded = retAdded || authproxySettingsAdded
 
+	err, currentTimeAdded := retrieveGeneralInfoCurrentTimeFlags(depth, m, cmdPrefix, cmd)
+	if err != nil {
+		return err, false
+	}
+	retAdded = retAdded || currentTimeAdded
+
 	err, externalUrlAdded := retrieveGeneralInfoExternalURLFlags(depth, m, cmdPrefix, cmd)
 	if err != nil {
 		return err, false
@@ -480,6 +510,38 @@ func retrieveGeneralInfoAuthproxySettingsFlags(depth int, m *models.GeneralInfo,
 	retAdded = retAdded || authproxySettingsAdded
 	if authproxySettingsAdded {
 		m.AuthproxySettings = authproxySettingsFlagValue
+	}
+
+	return nil, retAdded
+}
+
+func retrieveGeneralInfoCurrentTimeFlags(depth int, m *models.GeneralInfo, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+	if depth > maxDepth {
+		return nil, false
+	}
+	retAdded := false
+
+	currentTimeFlagName := fmt.Sprintf("%v.current_time", cmdPrefix)
+	if cmd.Flags().Changed(currentTimeFlagName) {
+
+		var currentTimeFlagName string
+		if cmdPrefix == "" {
+			currentTimeFlagName = "current_time"
+		} else {
+			currentTimeFlagName = fmt.Sprintf("%v.current_time", cmdPrefix)
+		}
+
+		currentTimeFlagValueStr, err := cmd.Flags().GetString(currentTimeFlagName)
+		if err != nil {
+			return err, false
+		}
+		var currentTimeFlagValue strfmt.DateTime
+		if err := currentTimeFlagValue.UnmarshalText([]byte(currentTimeFlagValueStr)); err != nil {
+			return err, false
+		}
+		m.CurrentTime = &currentTimeFlagValue
+
+		retAdded = true
 	}
 
 	return nil, retAdded

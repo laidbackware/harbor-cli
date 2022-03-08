@@ -15,39 +15,40 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// makeOperationUsergroupListUserGroupsCmd returns a cmd to handle operation listUserGroups
-func makeOperationUsergroupListUserGroupsCmd() (*cobra.Command, error) {
+// makeOperationUsergroupSearchUserGroupsCmd returns a cmd to handle operation searchUserGroups
+func makeOperationUsergroupSearchUserGroupsCmd() (*cobra.Command, error) {
 	cmd := &cobra.Command{
-		Use:   "listUserGroups",
-		Short: `Get all user groups information`,
-		RunE:  runOperationUsergroupListUserGroups,
+		Use: "searchUserGroups",
+		Short: `This endpoint is to search groups by group name.  It's open for all authenticated requests.
+`,
+		RunE: runOperationUsergroupSearchUserGroups,
 	}
 
-	if err := registerOperationUsergroupListUserGroupsParamFlags(cmd); err != nil {
+	if err := registerOperationUsergroupSearchUserGroupsParamFlags(cmd); err != nil {
 		return nil, err
 	}
 
 	return cmd, nil
 }
 
-// runOperationUsergroupListUserGroups uses cmd flags to call endpoint api
-func runOperationUsergroupListUserGroups(cmd *cobra.Command, args []string) error {
+// runOperationUsergroupSearchUserGroups uses cmd flags to call endpoint api
+func runOperationUsergroupSearchUserGroups(cmd *cobra.Command, args []string) error {
 	appCli, err := makeClient(cmd, args)
 	if err != nil {
 		return err
 	}
 	// retrieve flag values from cmd and fill params
-	params := usergroup.NewListUserGroupsParams()
-	if err, _ := retrieveOperationUsergroupListUserGroupsXRequestIDFlag(params, "", cmd); err != nil {
+	params := usergroup.NewSearchUserGroupsParams()
+	if err, _ := retrieveOperationUsergroupSearchUserGroupsXRequestIDFlag(params, "", cmd); err != nil {
 		return err
 	}
-	if err, _ := retrieveOperationUsergroupListUserGroupsLdapGroupDnFlag(params, "", cmd); err != nil {
+	if err, _ := retrieveOperationUsergroupSearchUserGroupsGroupnameFlag(params, "", cmd); err != nil {
 		return err
 	}
-	if err, _ := retrieveOperationUsergroupListUserGroupsPageFlag(params, "", cmd); err != nil {
+	if err, _ := retrieveOperationUsergroupSearchUserGroupsPageFlag(params, "", cmd); err != nil {
 		return err
 	}
-	if err, _ := retrieveOperationUsergroupListUserGroupsPageSizeFlag(params, "", cmd); err != nil {
+	if err, _ := retrieveOperationUsergroupSearchUserGroupsPageSizeFlag(params, "", cmd); err != nil {
 		return err
 	}
 	if dryRun {
@@ -56,7 +57,7 @@ func runOperationUsergroupListUserGroups(cmd *cobra.Command, args []string) erro
 		return nil
 	}
 	// make request and then print result
-	msgStr, err := parseOperationUsergroupListUserGroupsResult(appCli.Usergroup.ListUserGroups(params, nil))
+	msgStr, err := parseOperationUsergroupSearchUserGroupsResult(appCli.Usergroup.SearchUserGroups(params, nil))
 	if err != nil {
 		return err
 	}
@@ -67,24 +68,24 @@ func runOperationUsergroupListUserGroups(cmd *cobra.Command, args []string) erro
 	return nil
 }
 
-// registerOperationUsergroupListUserGroupsParamFlags registers all flags needed to fill params
-func registerOperationUsergroupListUserGroupsParamFlags(cmd *cobra.Command) error {
-	if err := registerOperationUsergroupListUserGroupsXRequestIDParamFlags("", cmd); err != nil {
+// registerOperationUsergroupSearchUserGroupsParamFlags registers all flags needed to fill params
+func registerOperationUsergroupSearchUserGroupsParamFlags(cmd *cobra.Command) error {
+	if err := registerOperationUsergroupSearchUserGroupsXRequestIDParamFlags("", cmd); err != nil {
 		return err
 	}
-	if err := registerOperationUsergroupListUserGroupsLdapGroupDnParamFlags("", cmd); err != nil {
+	if err := registerOperationUsergroupSearchUserGroupsGroupnameParamFlags("", cmd); err != nil {
 		return err
 	}
-	if err := registerOperationUsergroupListUserGroupsPageParamFlags("", cmd); err != nil {
+	if err := registerOperationUsergroupSearchUserGroupsPageParamFlags("", cmd); err != nil {
 		return err
 	}
-	if err := registerOperationUsergroupListUserGroupsPageSizeParamFlags("", cmd); err != nil {
+	if err := registerOperationUsergroupSearchUserGroupsPageSizeParamFlags("", cmd); err != nil {
 		return err
 	}
 	return nil
 }
 
-func registerOperationUsergroupListUserGroupsXRequestIDParamFlags(cmdPrefix string, cmd *cobra.Command) error {
+func registerOperationUsergroupSearchUserGroupsXRequestIDParamFlags(cmdPrefix string, cmd *cobra.Command) error {
 
 	xRequestIdDescription := `An unique ID for the request`
 
@@ -101,24 +102,24 @@ func registerOperationUsergroupListUserGroupsXRequestIDParamFlags(cmdPrefix stri
 
 	return nil
 }
-func registerOperationUsergroupListUserGroupsLdapGroupDnParamFlags(cmdPrefix string, cmd *cobra.Command) error {
+func registerOperationUsergroupSearchUserGroupsGroupnameParamFlags(cmdPrefix string, cmd *cobra.Command) error {
 
-	ldapGroupDnDescription := `search with ldap group DN`
+	groupnameDescription := `Required. Group name for filtering results.`
 
-	var ldapGroupDnFlagName string
+	var groupnameFlagName string
 	if cmdPrefix == "" {
-		ldapGroupDnFlagName = "ldap_group_dn"
+		groupnameFlagName = "groupname"
 	} else {
-		ldapGroupDnFlagName = fmt.Sprintf("%v.ldap_group_dn", cmdPrefix)
+		groupnameFlagName = fmt.Sprintf("%v.groupname", cmdPrefix)
 	}
 
-	var ldapGroupDnFlagDefault string
+	var groupnameFlagDefault string
 
-	_ = cmd.PersistentFlags().String(ldapGroupDnFlagName, ldapGroupDnFlagDefault, ldapGroupDnDescription)
+	_ = cmd.PersistentFlags().String(groupnameFlagName, groupnameFlagDefault, groupnameDescription)
 
 	return nil
 }
-func registerOperationUsergroupListUserGroupsPageParamFlags(cmdPrefix string, cmd *cobra.Command) error {
+func registerOperationUsergroupSearchUserGroupsPageParamFlags(cmdPrefix string, cmd *cobra.Command) error {
 
 	pageDescription := `The page number`
 
@@ -135,7 +136,7 @@ func registerOperationUsergroupListUserGroupsPageParamFlags(cmdPrefix string, cm
 
 	return nil
 }
-func registerOperationUsergroupListUserGroupsPageSizeParamFlags(cmdPrefix string, cmd *cobra.Command) error {
+func registerOperationUsergroupSearchUserGroupsPageSizeParamFlags(cmdPrefix string, cmd *cobra.Command) error {
 
 	pageSizeDescription := `The size of per page`
 
@@ -153,7 +154,7 @@ func registerOperationUsergroupListUserGroupsPageSizeParamFlags(cmdPrefix string
 	return nil
 }
 
-func retrieveOperationUsergroupListUserGroupsXRequestIDFlag(m *usergroup.ListUserGroupsParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+func retrieveOperationUsergroupSearchUserGroupsXRequestIDFlag(m *usergroup.SearchUserGroupsParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
 	retAdded := false
 	if cmd.Flags().Changed("X-Request-Id") {
 
@@ -173,27 +174,27 @@ func retrieveOperationUsergroupListUserGroupsXRequestIDFlag(m *usergroup.ListUse
 	}
 	return nil, retAdded
 }
-func retrieveOperationUsergroupListUserGroupsLdapGroupDnFlag(m *usergroup.ListUserGroupsParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+func retrieveOperationUsergroupSearchUserGroupsGroupnameFlag(m *usergroup.SearchUserGroupsParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
 	retAdded := false
-	if cmd.Flags().Changed("ldap_group_dn") {
+	if cmd.Flags().Changed("groupname") {
 
-		var ldapGroupDnFlagName string
+		var groupnameFlagName string
 		if cmdPrefix == "" {
-			ldapGroupDnFlagName = "ldap_group_dn"
+			groupnameFlagName = "groupname"
 		} else {
-			ldapGroupDnFlagName = fmt.Sprintf("%v.ldap_group_dn", cmdPrefix)
+			groupnameFlagName = fmt.Sprintf("%v.groupname", cmdPrefix)
 		}
 
-		ldapGroupDnFlagValue, err := cmd.Flags().GetString(ldapGroupDnFlagName)
+		groupnameFlagValue, err := cmd.Flags().GetString(groupnameFlagName)
 		if err != nil {
 			return err, false
 		}
-		m.LdapGroupDn = &ldapGroupDnFlagValue
+		m.Groupname = groupnameFlagValue
 
 	}
 	return nil, retAdded
 }
-func retrieveOperationUsergroupListUserGroupsPageFlag(m *usergroup.ListUserGroupsParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+func retrieveOperationUsergroupSearchUserGroupsPageFlag(m *usergroup.SearchUserGroupsParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
 	retAdded := false
 	if cmd.Flags().Changed("page") {
 
@@ -213,7 +214,7 @@ func retrieveOperationUsergroupListUserGroupsPageFlag(m *usergroup.ListUserGroup
 	}
 	return nil, retAdded
 }
-func retrieveOperationUsergroupListUserGroupsPageSizeFlag(m *usergroup.ListUserGroupsParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+func retrieveOperationUsergroupSearchUserGroupsPageSizeFlag(m *usergroup.SearchUserGroupsParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
 	retAdded := false
 	if cmd.Flags().Changed("page_size") {
 
@@ -234,12 +235,12 @@ func retrieveOperationUsergroupListUserGroupsPageSizeFlag(m *usergroup.ListUserG
 	return nil, retAdded
 }
 
-// parseOperationUsergroupListUserGroupsResult parses request result and return the string content
-func parseOperationUsergroupListUserGroupsResult(resp0 *usergroup.ListUserGroupsOK, respErr error) (string, error) {
+// parseOperationUsergroupSearchUserGroupsResult parses request result and return the string content
+func parseOperationUsergroupSearchUserGroupsResult(resp0 *usergroup.SearchUserGroupsOK, respErr error) (string, error) {
 	if respErr != nil {
 
 		var iResp0 interface{} = respErr
-		resp0, ok := iResp0.(*usergroup.ListUserGroupsOK)
+		resp0, ok := iResp0.(*usergroup.SearchUserGroupsOK)
 		if ok {
 			if !swag.IsZero(resp0) && !swag.IsZero(resp0.Payload) {
 				msgStr, err := json.Marshal(resp0.Payload)
@@ -251,7 +252,7 @@ func parseOperationUsergroupListUserGroupsResult(resp0 *usergroup.ListUserGroups
 		}
 
 		var iResp1 interface{} = respErr
-		resp1, ok := iResp1.(*usergroup.ListUserGroupsUnauthorized)
+		resp1, ok := iResp1.(*usergroup.SearchUserGroupsUnauthorized)
 		if ok {
 			if !swag.IsZero(resp1) && !swag.IsZero(resp1.Payload) {
 				msgStr, err := json.Marshal(resp1.Payload)
@@ -263,22 +264,10 @@ func parseOperationUsergroupListUserGroupsResult(resp0 *usergroup.ListUserGroups
 		}
 
 		var iResp2 interface{} = respErr
-		resp2, ok := iResp2.(*usergroup.ListUserGroupsForbidden)
+		resp2, ok := iResp2.(*usergroup.SearchUserGroupsInternalServerError)
 		if ok {
 			if !swag.IsZero(resp2) && !swag.IsZero(resp2.Payload) {
 				msgStr, err := json.Marshal(resp2.Payload)
-				if err != nil {
-					return "", err
-				}
-				return string(msgStr), nil
-			}
-		}
-
-		var iResp3 interface{} = respErr
-		resp3, ok := iResp3.(*usergroup.ListUserGroupsInternalServerError)
-		if ok {
-			if !swag.IsZero(resp3) && !swag.IsZero(resp3.Payload) {
-				msgStr, err := json.Marshal(resp3.Payload)
 				if err != nil {
 					return "", err
 				}

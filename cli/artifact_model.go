@@ -18,6 +18,10 @@ import (
 // register flags to command
 func registerModelArtifactFlags(depth int, cmdPrefix string, cmd *cobra.Command) error {
 
+	if err := registerArtifactAccessories(depth, cmdPrefix, cmd); err != nil {
+		return err
+	}
+
 	if err := registerArtifactAdditionLinks(depth, cmdPrefix, cmd); err != nil {
 		return err
 	}
@@ -89,6 +93,16 @@ func registerModelArtifactFlags(depth int, cmdPrefix string, cmd *cobra.Command)
 	if err := registerArtifactType(depth, cmdPrefix, cmd); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func registerArtifactAccessories(depth int, cmdPrefix string, cmd *cobra.Command) error {
+	if depth > maxDepth {
+		return nil
+	}
+
+	// warning: accessories []*Accessory array type is not supported by go-swagger cli yet
 
 	return nil
 }
@@ -394,6 +408,12 @@ func registerArtifactType(depth int, cmdPrefix string, cmd *cobra.Command) error
 func retrieveModelArtifactFlags(depth int, m *models.Artifact, cmdPrefix string, cmd *cobra.Command) (error, bool) {
 	retAdded := false
 
+	err, accessoriesAdded := retrieveArtifactAccessoriesFlags(depth, m, cmdPrefix, cmd)
+	if err != nil {
+		return err, false
+	}
+	retAdded = retAdded || accessoriesAdded
+
 	err, additionLinksAdded := retrieveArtifactAdditionLinksFlags(depth, m, cmdPrefix, cmd)
 	if err != nil {
 		return err, false
@@ -501,6 +521,20 @@ func retrieveModelArtifactFlags(depth int, m *models.Artifact, cmdPrefix string,
 		return err, false
 	}
 	retAdded = retAdded || typeAdded
+
+	return nil, retAdded
+}
+
+func retrieveArtifactAccessoriesFlags(depth int, m *models.Artifact, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+	if depth > maxDepth {
+		return nil, false
+	}
+	retAdded := false
+
+	accessoriesFlagName := fmt.Sprintf("%v.accessories", cmdPrefix)
+	if cmd.Flags().Changed(accessoriesFlagName) {
+		// warning: accessories array type []*Accessory is not supported by go-swagger cli yet
+	}
 
 	return nil, retAdded
 }

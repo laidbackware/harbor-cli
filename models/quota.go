@@ -12,7 +12,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
-	"github.com/goharbor/harbor/src/pkg/quota/types"
 )
 
 // Quota The quota object
@@ -25,7 +24,7 @@ type Quota struct {
 	CreationTime strfmt.DateTime `json:"creation_time,omitempty"`
 
 	// The hard limits of the quota
-	Hard types.ResourceList `json:"hard,omitempty"`
+	Hard ResourceList `json:"hard,omitempty"`
 
 	// ID of the quota
 	ID int64 `json:"id,omitempty"`
@@ -38,7 +37,7 @@ type Quota struct {
 	UpdateTime strfmt.DateTime `json:"update_time,omitempty"`
 
 	// The used status of the quota
-	Used types.ResourceList `json:"used,omitempty"`
+	Used ResourceList `json:"used,omitempty"`
 }
 
 // Validate validates this quota
@@ -84,13 +83,15 @@ func (m *Quota) validateHard(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.Hard.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("hard")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("hard")
+	if m.Hard != nil {
+		if err := m.Hard.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("hard")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("hard")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil
@@ -113,13 +114,15 @@ func (m *Quota) validateUsed(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.Used.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("used")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("used")
+	if m.Used != nil {
+		if err := m.Used.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("used")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("used")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

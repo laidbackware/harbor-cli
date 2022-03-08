@@ -38,6 +38,8 @@ type ClientService interface {
 
 	ListUserGroups(params *ListUserGroupsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*ListUserGroupsOK, error)
 
+	SearchUserGroups(params *SearchUserGroupsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*SearchUserGroupsOK, error)
+
 	UpdateUserGroup(params *UpdateUserGroupParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*UpdateUserGroupOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -204,6 +206,48 @@ func (a *Client) ListUserGroups(params *ListUserGroupsParams, authInfo runtime.C
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
 	msg := fmt.Sprintf("unexpected success response for listUserGroups: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
+}
+
+/*
+  SearchUserGroups searches groups by groupname
+
+  This endpoint is to search groups by group name.  It's open for all authenticated requests.
+
+*/
+func (a *Client) SearchUserGroups(params *SearchUserGroupsParams, authInfo runtime.ClientAuthInfoWriter, opts ...ClientOption) (*SearchUserGroupsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewSearchUserGroupsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "searchUserGroups",
+		Method:             "GET",
+		PathPattern:        "/usergroups/search",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &SearchUserGroupsReader{formats: a.formats},
+		AuthInfo:           authInfo,
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*SearchUserGroupsOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for searchUserGroups: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

@@ -29,7 +29,7 @@ func registerQuotaUpdateReqHard(depth int, cmdPrefix string, cmd *cobra.Command)
 		return nil
 	}
 
-	// warning: hard types.ResourceList unkown type is not supported by go-swagger cli yet
+	// warning: hard ResourceList map type is not supported by go-swagger cli yet
 
 	return nil
 }
@@ -55,7 +55,7 @@ func retrieveQuotaUpdateReqHardFlags(depth int, m *models.QuotaUpdateReq, cmdPre
 
 	hardFlagName := fmt.Sprintf("%v.hard", cmdPrefix)
 	if cmd.Flags().Changed(hardFlagName) {
-		// warning: hard types.ResourceList unkown type is not supported by go-swagger cli yet
+		// warning: hard map type ResourceList is not supported by go-swagger cli yet
 	}
 
 	return nil, retAdded

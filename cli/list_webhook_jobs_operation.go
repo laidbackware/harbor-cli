@@ -444,7 +444,7 @@ func retrieveOperationWebhookjobListWebhookJobsStatusFlag(m *webhookjob.ListWebh
 		if err != nil {
 			return err, false
 		}
-		m.Status = &statusFlagValues
+		m.Status = statusFlagValues
 
 	}
 	return nil, retAdded

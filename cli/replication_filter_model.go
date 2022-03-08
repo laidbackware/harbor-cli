@@ -17,6 +17,10 @@ import (
 // register flags to command
 func registerModelReplicationFilterFlags(depth int, cmdPrefix string, cmd *cobra.Command) error {
 
+	if err := registerReplicationFilterDecoration(depth, cmdPrefix, cmd); err != nil {
+		return err
+	}
+
 	if err := registerReplicationFilterType(depth, cmdPrefix, cmd); err != nil {
 		return err
 	}
@@ -24,6 +28,27 @@ func registerModelReplicationFilterFlags(depth int, cmdPrefix string, cmd *cobra
 	if err := registerReplicationFilterValue(depth, cmdPrefix, cmd); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func registerReplicationFilterDecoration(depth int, cmdPrefix string, cmd *cobra.Command) error {
+	if depth > maxDepth {
+		return nil
+	}
+
+	decorationDescription := `matches or excludes the result`
+
+	var decorationFlagName string
+	if cmdPrefix == "" {
+		decorationFlagName = "decoration"
+	} else {
+		decorationFlagName = fmt.Sprintf("%v.decoration", cmdPrefix)
+	}
+
+	var decorationFlagDefault string
+
+	_ = cmd.PersistentFlags().String(decorationFlagName, decorationFlagDefault, decorationDescription)
 
 	return nil
 }
@@ -63,6 +88,12 @@ func registerReplicationFilterValue(depth int, cmdPrefix string, cmd *cobra.Comm
 func retrieveModelReplicationFilterFlags(depth int, m *models.ReplicationFilter, cmdPrefix string, cmd *cobra.Command) (error, bool) {
 	retAdded := false
 
+	err, decorationAdded := retrieveReplicationFilterDecorationFlags(depth, m, cmdPrefix, cmd)
+	if err != nil {
+		return err, false
+	}
+	retAdded = retAdded || decorationAdded
+
 	err, typeAdded := retrieveReplicationFilterTypeFlags(depth, m, cmdPrefix, cmd)
 	if err != nil {
 		return err, false
@@ -74,6 +105,34 @@ func retrieveModelReplicationFilterFlags(depth int, m *models.ReplicationFilter,
 		return err, false
 	}
 	retAdded = retAdded || valueAdded
+
+	return nil, retAdded
+}
+
+func retrieveReplicationFilterDecorationFlags(depth int, m *models.ReplicationFilter, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+	if depth > maxDepth {
+		return nil, false
+	}
+	retAdded := false
+
+	decorationFlagName := fmt.Sprintf("%v.decoration", cmdPrefix)
+	if cmd.Flags().Changed(decorationFlagName) {
+
+		var decorationFlagName string
+		if cmdPrefix == "" {
+			decorationFlagName = "decoration"
+		} else {
+			decorationFlagName = fmt.Sprintf("%v.decoration", cmdPrefix)
+		}
+
+		decorationFlagValue, err := cmd.Flags().GetString(decorationFlagName)
+		if err != nil {
+			return err, false
+		}
+		m.Decoration = decorationFlagValue
+
+		retAdded = true
+	}
 
 	return nil, retAdded
 }

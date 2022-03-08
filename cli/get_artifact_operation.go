@@ -59,6 +59,9 @@ func runOperationArtifactGetArtifact(cmd *cobra.Command, args []string) error {
 	if err, _ := retrieveOperationArtifactGetArtifactRepositoryNameFlag(params, "", cmd); err != nil {
 		return err
 	}
+	if err, _ := retrieveOperationArtifactGetArtifactWithAccessoryFlag(params, "", cmd); err != nil {
+		return err
+	}
 	if err, _ := retrieveOperationArtifactGetArtifactWithImmutableStatusFlag(params, "", cmd); err != nil {
 		return err
 	}
@@ -112,6 +115,9 @@ func registerOperationArtifactGetArtifactParamFlags(cmd *cobra.Command) error {
 		return err
 	}
 	if err := registerOperationArtifactGetArtifactRepositoryNameParamFlags("", cmd); err != nil {
+		return err
+	}
+	if err := registerOperationArtifactGetArtifactWithAccessoryParamFlags("", cmd); err != nil {
 		return err
 	}
 	if err := registerOperationArtifactGetArtifactWithImmutableStatusParamFlags("", cmd); err != nil {
@@ -252,9 +258,26 @@ func registerOperationArtifactGetArtifactRepositoryNameParamFlags(cmdPrefix stri
 
 	return nil
 }
+func registerOperationArtifactGetArtifactWithAccessoryParamFlags(cmdPrefix string, cmd *cobra.Command) error {
+
+	withAccessoryDescription := `Specify whether the accessories are included of the returning artifacts.`
+
+	var withAccessoryFlagName string
+	if cmdPrefix == "" {
+		withAccessoryFlagName = "with_accessory"
+	} else {
+		withAccessoryFlagName = fmt.Sprintf("%v.with_accessory", cmdPrefix)
+	}
+
+	var withAccessoryFlagDefault bool
+
+	_ = cmd.PersistentFlags().Bool(withAccessoryFlagName, withAccessoryFlagDefault, withAccessoryDescription)
+
+	return nil
+}
 func registerOperationArtifactGetArtifactWithImmutableStatusParamFlags(cmdPrefix string, cmd *cobra.Command) error {
 
-	withImmutableStatusDescription := `Specify whether the immutable status is inclued inside the tags of the returning artifacts. Only works when setting 'with_tag=true'`
+	withImmutableStatusDescription := `Specify whether the immutable status is inclued inside the tags of the returning artifacts.`
 
 	var withImmutableStatusFlagName string
 	if cmdPrefix == "" {
@@ -474,6 +497,26 @@ func retrieveOperationArtifactGetArtifactRepositoryNameFlag(m *artifact.GetArtif
 			return err, false
 		}
 		m.RepositoryName = repositoryNameFlagValue
+
+	}
+	return nil, retAdded
+}
+func retrieveOperationArtifactGetArtifactWithAccessoryFlag(m *artifact.GetArtifactParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+	retAdded := false
+	if cmd.Flags().Changed("with_accessory") {
+
+		var withAccessoryFlagName string
+		if cmdPrefix == "" {
+			withAccessoryFlagName = "with_accessory"
+		} else {
+			withAccessoryFlagName = fmt.Sprintf("%v.with_accessory", cmdPrefix)
+		}
+
+		withAccessoryFlagValue, err := cmd.Flags().GetBool(withAccessoryFlagName)
+		if err != nil {
+			return err, false
+		}
+		m.WithAccessory = &withAccessoryFlagValue
 
 	}
 	return nil, retAdded

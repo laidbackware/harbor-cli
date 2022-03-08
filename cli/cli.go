@@ -12,11 +12,11 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/laidbackware/harbor-cli/client"
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -411,6 +411,12 @@ func makeOperationGroupArtifactCmd() (*cobra.Command, error) {
 		return nil, err
 	}
 	operationGroupArtifactCmd.AddCommand(operationGetVulnerabilitiesAdditionCmd)
+
+	operationListAccessoriesCmd, err := makeOperationArtifactListAccessoriesCmd()
+	if err != nil {
+		return nil, err
+	}
+	operationGroupArtifactCmd.AddCommand(operationListAccessoriesCmd)
 
 	operationListArtifactsCmd, err := makeOperationArtifactListArtifactsCmd()
 	if err != nil {
@@ -1320,6 +1326,12 @@ func makeOperationGroupScanCmd() (*cobra.Command, error) {
 	}
 	operationGroupScanCmd.AddCommand(operationScanArtifactCmd)
 
+	operationStopScanArtifactCmd, err := makeOperationScanStopScanArtifactCmd()
+	if err != nil {
+		return nil, err
+	}
+	operationGroupScanCmd.AddCommand(operationStopScanArtifactCmd)
+
 	return operationGroupScanCmd, nil
 }
 func makeOperationGroupScanAllCmd() (*cobra.Command, error) {
@@ -1351,6 +1363,12 @@ func makeOperationGroupScanAllCmd() (*cobra.Command, error) {
 		return nil, err
 	}
 	operationGroupScanAllCmd.AddCommand(operationGetScanAllScheduleCmd)
+
+	operationStopScanAllCmd, err := makeOperationScanAllStopScanAllCmd()
+	if err != nil {
+		return nil, err
+	}
+	operationGroupScanAllCmd.AddCommand(operationStopScanAllCmd)
 
 	operationUpdateScanAllScheduleCmd, err := makeOperationScanAllUpdateScanAllScheduleCmd()
 	if err != nil {
@@ -1593,6 +1611,12 @@ func makeOperationGroupUsergroupCmd() (*cobra.Command, error) {
 		return nil, err
 	}
 	operationGroupUsergroupCmd.AddCommand(operationListUserGroupsCmd)
+
+	operationSearchUserGroupsCmd, err := makeOperationUsergroupSearchUserGroupsCmd()
+	if err != nil {
+		return nil, err
+	}
+	operationGroupUsergroupCmd.AddCommand(operationSearchUserGroupsCmd)
 
 	operationUpdateUserGroupCmd, err := makeOperationUsergroupUpdateUserGroupCmd()
 	if err != nil {

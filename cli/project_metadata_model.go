@@ -25,6 +25,10 @@ func registerModelProjectMetadataFlags(depth int, cmdPrefix string, cmd *cobra.C
 		return err
 	}
 
+	if err := registerProjectMetadataEnableContentTrustCosign(depth, cmdPrefix, cmd); err != nil {
+		return err
+	}
+
 	if err := registerProjectMetadataPreventVul(depth, cmdPrefix, cmd); err != nil {
 		return err
 	}
@@ -86,6 +90,27 @@ func registerProjectMetadataEnableContentTrust(depth int, cmdPrefix string, cmd 
 	var enableContentTrustFlagDefault string
 
 	_ = cmd.PersistentFlags().String(enableContentTrustFlagName, enableContentTrustFlagDefault, enableContentTrustDescription)
+
+	return nil
+}
+
+func registerProjectMetadataEnableContentTrustCosign(depth int, cmdPrefix string, cmd *cobra.Command) error {
+	if depth > maxDepth {
+		return nil
+	}
+
+	enableContentTrustCosignDescription := `Whether cosign content trust is enabled or not. If it is enabled, user cant pull images without cosign signature from this project. The valid values are 'true', 'false'.`
+
+	var enableContentTrustCosignFlagName string
+	if cmdPrefix == "" {
+		enableContentTrustCosignFlagName = "enable_content_trust_cosign"
+	} else {
+		enableContentTrustCosignFlagName = fmt.Sprintf("%v.enable_content_trust_cosign", cmdPrefix)
+	}
+
+	var enableContentTrustCosignFlagDefault string
+
+	_ = cmd.PersistentFlags().String(enableContentTrustCosignFlagName, enableContentTrustCosignFlagDefault, enableContentTrustCosignDescription)
 
 	return nil
 }
@@ -158,7 +183,7 @@ func registerProjectMetadataReuseSysCveAllowlist(depth int, cmdPrefix string, cm
 		return nil
 	}
 
-	reuseSysCveAllowlistDescription := `Whether this project reuse the system level CVE allowlist as the allowlist of its own.  The valid values are 'true', 'false'. If it is set to 'true' the actual allowlist associate with this project, if any, will be ignored.`
+	reuseSysCveAllowlistDescription := `Whether this project reuse the system level CVE allowlist as the allowlist of its own.  The valid values are 'true', 'false'. If it is set to 'true' the actual allowlist associate with this project, if any, will be ignored.'`
 
 	var reuseSysCveAllowlistFlagName string
 	if cmdPrefix == "" {
@@ -210,6 +235,12 @@ func retrieveModelProjectMetadataFlags(depth int, m *models.ProjectMetadata, cmd
 		return err, false
 	}
 	retAdded = retAdded || enableContentTrustAdded
+
+	err, enableContentTrustCosignAdded := retrieveProjectMetadataEnableContentTrustCosignFlags(depth, m, cmdPrefix, cmd)
+	if err != nil {
+		return err, false
+	}
+	retAdded = retAdded || enableContentTrustCosignAdded
 
 	err, preventVulAdded := retrieveProjectMetadataPreventVulFlags(depth, m, cmdPrefix, cmd)
 	if err != nil {
@@ -293,6 +324,34 @@ func retrieveProjectMetadataEnableContentTrustFlags(depth int, m *models.Project
 			return err, false
 		}
 		m.EnableContentTrust = &enableContentTrustFlagValue
+
+		retAdded = true
+	}
+
+	return nil, retAdded
+}
+
+func retrieveProjectMetadataEnableContentTrustCosignFlags(depth int, m *models.ProjectMetadata, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+	if depth > maxDepth {
+		return nil, false
+	}
+	retAdded := false
+
+	enableContentTrustCosignFlagName := fmt.Sprintf("%v.enable_content_trust_cosign", cmdPrefix)
+	if cmd.Flags().Changed(enableContentTrustCosignFlagName) {
+
+		var enableContentTrustCosignFlagName string
+		if cmdPrefix == "" {
+			enableContentTrustCosignFlagName = "enable_content_trust_cosign"
+		} else {
+			enableContentTrustCosignFlagName = fmt.Sprintf("%v.enable_content_trust_cosign", cmdPrefix)
+		}
+
+		enableContentTrustCosignFlagValue, err := cmd.Flags().GetString(enableContentTrustCosignFlagName)
+		if err != nil {
+			return err, false
+		}
+		m.EnableContentTrustCosign = &enableContentTrustCosignFlagValue
 
 		retAdded = true
 	}

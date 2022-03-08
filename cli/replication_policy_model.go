@@ -68,6 +68,10 @@ func registerModelReplicationPolicyFlags(depth int, cmdPrefix string, cmd *cobra
 		return err
 	}
 
+	if err := registerReplicationPolicySpeed(depth, cmdPrefix, cmd); err != nil {
+		return err
+	}
+
 	if err := registerReplicationPolicySrcRegistry(depth, cmdPrefix, cmd); err != nil {
 		return err
 	}
@@ -309,6 +313,27 @@ func registerReplicationPolicyReplicateDeletion(depth int, cmdPrefix string, cmd
 	return nil
 }
 
+func registerReplicationPolicySpeed(depth int, cmdPrefix string, cmd *cobra.Command) error {
+	if depth > maxDepth {
+		return nil
+	}
+
+	speedDescription := `speed limit for each task`
+
+	var speedFlagName string
+	if cmdPrefix == "" {
+		speedFlagName = "speed"
+	} else {
+		speedFlagName = fmt.Sprintf("%v.speed", cmdPrefix)
+	}
+
+	var speedFlagDefault int32
+
+	_ = cmd.PersistentFlags().Int32(speedFlagName, speedFlagDefault, speedDescription)
+
+	return nil
+}
+
 func registerReplicationPolicySrcRegistry(depth int, cmdPrefix string, cmd *cobra.Command) error {
 	if depth > maxDepth {
 		return nil
@@ -441,6 +466,12 @@ func retrieveModelReplicationPolicyFlags(depth int, m *models.ReplicationPolicy,
 		return err, false
 	}
 	retAdded = retAdded || replicateDeletionAdded
+
+	err, speedAdded := retrieveReplicationPolicySpeedFlags(depth, m, cmdPrefix, cmd)
+	if err != nil {
+		return err, false
+	}
+	retAdded = retAdded || speedAdded
 
 	err, srcRegistryAdded := retrieveReplicationPolicySrcRegistryFlags(depth, m, cmdPrefix, cmd)
 	if err != nil {
@@ -770,6 +801,34 @@ func retrieveReplicationPolicyReplicateDeletionFlags(depth int, m *models.Replic
 			return err, false
 		}
 		m.ReplicateDeletion = replicateDeletionFlagValue
+
+		retAdded = true
+	}
+
+	return nil, retAdded
+}
+
+func retrieveReplicationPolicySpeedFlags(depth int, m *models.ReplicationPolicy, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+	if depth > maxDepth {
+		return nil, false
+	}
+	retAdded := false
+
+	speedFlagName := fmt.Sprintf("%v.speed", cmdPrefix)
+	if cmd.Flags().Changed(speedFlagName) {
+
+		var speedFlagName string
+		if cmdPrefix == "" {
+			speedFlagName = "speed"
+		} else {
+			speedFlagName = fmt.Sprintf("%v.speed", cmdPrefix)
+		}
+
+		speedFlagValue, err := cmd.Flags().GetInt32(speedFlagName)
+		if err != nil {
+			return err, false
+		}
+		m.Speed = &speedFlagValue
 
 		retAdded = true
 	}

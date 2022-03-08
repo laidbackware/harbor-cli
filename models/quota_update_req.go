@@ -11,7 +11,6 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/goharbor/harbor/src/pkg/quota/types"
 )
 
 // QuotaUpdateReq quota update req
@@ -20,7 +19,7 @@ import (
 type QuotaUpdateReq struct {
 
 	// The new hard limits for the quota
-	Hard types.ResourceList `json:"hard,omitempty"`
+	Hard ResourceList `json:"hard,omitempty"`
 }
 
 // Validate validates this quota update req
@@ -42,13 +41,15 @@ func (m *QuotaUpdateReq) validateHard(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := m.Hard.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("hard")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("hard")
+	if m.Hard != nil {
+		if err := m.Hard.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("hard")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("hard")
+			}
+			return err
 		}
-		return err
 	}
 
 	return nil

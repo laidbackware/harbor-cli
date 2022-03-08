@@ -69,7 +69,7 @@ func registerQuotaHard(depth int, cmdPrefix string, cmd *cobra.Command) error {
 		return nil
 	}
 
-	// warning: hard types.ResourceList unkown type is not supported by go-swagger cli yet
+	// warning: hard ResourceList map type is not supported by go-swagger cli yet
 
 	return nil
 }
@@ -129,7 +129,7 @@ func registerQuotaUsed(depth int, cmdPrefix string, cmd *cobra.Command) error {
 		return nil
 	}
 
-	// warning: used types.ResourceList unkown type is not supported by go-swagger cli yet
+	// warning: used ResourceList map type is not supported by go-swagger cli yet
 
 	return nil
 }
@@ -217,7 +217,7 @@ func retrieveQuotaHardFlags(depth int, m *models.Quota, cmdPrefix string, cmd *c
 
 	hardFlagName := fmt.Sprintf("%v.hard", cmdPrefix)
 	if cmd.Flags().Changed(hardFlagName) {
-		// warning: hard types.ResourceList unkown type is not supported by go-swagger cli yet
+		// warning: hard map type ResourceList is not supported by go-swagger cli yet
 	}
 
 	return nil, retAdded
@@ -305,7 +305,7 @@ func retrieveQuotaUsedFlags(depth int, m *models.Quota, cmdPrefix string, cmd *c
 
 	usedFlagName := fmt.Sprintf("%v.used", cmdPrefix)
 	if cmd.Flags().Changed(usedFlagName) {
-		// warning: used types.ResourceList unkown type is not supported by go-swagger cli yet
+		// warning: used map type ResourceList is not supported by go-swagger cli yet
 	}
 
 	return nil, retAdded

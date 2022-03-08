@@ -62,6 +62,9 @@ func runOperationArtifactListArtifacts(cmd *cobra.Command, args []string) error 
 	if err, _ := retrieveOperationArtifactListArtifactsSortFlag(params, "", cmd); err != nil {
 		return err
 	}
+	if err, _ := retrieveOperationArtifactListArtifactsWithAccessoryFlag(params, "", cmd); err != nil {
+		return err
+	}
 	if err, _ := retrieveOperationArtifactListArtifactsWithImmutableStatusFlag(params, "", cmd); err != nil {
 		return err
 	}
@@ -118,6 +121,9 @@ func registerOperationArtifactListArtifactsParamFlags(cmd *cobra.Command) error 
 		return err
 	}
 	if err := registerOperationArtifactListArtifactsSortParamFlags("", cmd); err != nil {
+		return err
+	}
+	if err := registerOperationArtifactListArtifactsWithAccessoryParamFlags("", cmd); err != nil {
 		return err
 	}
 	if err := registerOperationArtifactListArtifactsWithImmutableStatusParamFlags("", cmd); err != nil {
@@ -275,9 +281,26 @@ func registerOperationArtifactListArtifactsSortParamFlags(cmdPrefix string, cmd 
 
 	return nil
 }
+func registerOperationArtifactListArtifactsWithAccessoryParamFlags(cmdPrefix string, cmd *cobra.Command) error {
+
+	withAccessoryDescription := `Specify whether the accessories are included of the returning artifacts. Only works when setting 'with_accessory=true'`
+
+	var withAccessoryFlagName string
+	if cmdPrefix == "" {
+		withAccessoryFlagName = "with_accessory"
+	} else {
+		withAccessoryFlagName = fmt.Sprintf("%v.with_accessory", cmdPrefix)
+	}
+
+	var withAccessoryFlagDefault bool
+
+	_ = cmd.PersistentFlags().Bool(withAccessoryFlagName, withAccessoryFlagDefault, withAccessoryDescription)
+
+	return nil
+}
 func registerOperationArtifactListArtifactsWithImmutableStatusParamFlags(cmdPrefix string, cmd *cobra.Command) error {
 
-	withImmutableStatusDescription := `Specify whether the immutable status is included inside the tags of the returning artifacts. Only works when setting 'with_tag=true'`
+	withImmutableStatusDescription := `Specify whether the immutable status is included inside the tags of the returning artifacts. Only works when setting 'with_immutable_status=true'`
 
 	var withImmutableStatusFlagName string
 	if cmdPrefix == "" {
@@ -517,6 +540,26 @@ func retrieveOperationArtifactListArtifactsSortFlag(m *artifact.ListArtifactsPar
 			return err, false
 		}
 		m.Sort = &sortFlagValue
+
+	}
+	return nil, retAdded
+}
+func retrieveOperationArtifactListArtifactsWithAccessoryFlag(m *artifact.ListArtifactsParams, cmdPrefix string, cmd *cobra.Command) (error, bool) {
+	retAdded := false
+	if cmd.Flags().Changed("with_accessory") {
+
+		var withAccessoryFlagName string
+		if cmdPrefix == "" {
+			withAccessoryFlagName = "with_accessory"
+		} else {
+			withAccessoryFlagName = fmt.Sprintf("%v.with_accessory", cmdPrefix)
+		}
+
+		withAccessoryFlagValue, err := cmd.Flags().GetBool(withAccessoryFlagName)
+		if err != nil {
+			return err, false
+		}
+		m.WithAccessory = &withAccessoryFlagValue
 
 	}
 	return nil, retAdded

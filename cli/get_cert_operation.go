@@ -6,7 +6,7 @@ package cli
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"bytes"
+	// "bytes"
 	"encoding/json"
 	"fmt"
 
@@ -34,29 +34,29 @@ func makeOperationSysteminfoGetCertCmd() (*cobra.Command, error) {
 
 // runOperationSysteminfoGetCert uses cmd flags to call endpoint api
 func runOperationSysteminfoGetCert(cmd *cobra.Command, args []string) error {
-	appCli, err := makeClient(cmd, args)
+	_, err := makeClient(cmd, args)
 	if err != nil {
 		return err
 	}
-	// retrieve flag values from cmd and fill params
-	params := systeminfo.NewGetCertParams()
-	if err, _ := retrieveOperationSysteminfoGetCertXRequestIDFlag(params, "", cmd); err != nil {
-		return err
-	}
-	if dryRun {
+	// // retrieve flag values from cmd and fill params
+	// params := systeminfo.NewGetCertParams()
+	// if err, _ := retrieveOperationSysteminfoGetCertXRequestIDFlag(params, "", cmd); err != nil {
+	// 	return err
+	// }
+	// if dryRun {
 
-		logDebugf("dry-run flag specified. Skip sending request.")
-		return nil
-	}
-	// make request and then print result
-	msgStr, err := parseOperationSysteminfoGetCertResult(appCli.Systeminfo.GetCert(params, &bytes.Buffer{}, nil))
-	if err != nil {
-		return err
-	}
-	if !debug {
+	// 	logDebugf("dry-run flag specified. Skip sending request.")
+	// 	return nil
+	// }
+	// // make request and then print result
+	// msgStr, err := parseOperationSysteminfoGetCertResult(appCli.Systeminfo.GetCert(params, &bytes.Buffer{}, nil))
+	// if err != nil {
+	// 	return err
+	// }
+	// if !debug {
 
-		fmt.Println(msgStr)
-	}
+	// 	fmt.Println(msgStr)
+	// }
 	return nil
 }
 
