@@ -58,7 +58,7 @@ Flags:
       --scheme string     Choose from: [http https] (default "http")
       --username string   username for basic auth
 
-Use "main [command] --help" for more information about a command.
+Use "harbro-cli [command] --help" for more information about a command.
 ```
 ## Known issues
 `harbor-cli systeminfo getCert` is currently broken and does not return a response.
